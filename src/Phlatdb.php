@@ -6,7 +6,7 @@ class Phlatdb {
 
     private $path = "../tests/db";
 
-    private $data;
+    private $data = array();
 
     private $table;
 
@@ -20,19 +20,46 @@ class Phlatdb {
     }
 
     public function insert($data) {
-        $this->data = $data;
+
+        $lines_to_insert = array();
+
+        if($this->isAssociativeArray($data)) {
+            $data = array($data);
+        }
+
+        foreach($data as $line) {
+            if($this->isAssociativeArray($line) && $this->isValidLine($line)) {
+                array_push($lines_to_insert,$line);
+            }
+        }
+
+        $this->data = $lines_to_insert;
         return $this;
     }
 
     public function save() {
         if(!$this->table) {
             throw new \Exception('Table not found');
-        } elseif(!$this->data) {
+        } elseif(count($this->data) == 0) {
             throw new \Exception('Data not found');
         } else {
-            $file_out = $this->path . '/' . $this->table . '.db';
-
+            $file_name = $this->path . '/' . $this->table . '.db';
+            $file = fopen($file_name, "w");
+            fwrite($file, $this->data);
         }
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    private function isAssociativeArray($arr) {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+
+    private function isValidLine($arr) {
+        return true;
     }
 
 }
