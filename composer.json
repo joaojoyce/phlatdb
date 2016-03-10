@@ -1,0 +1,21 @@
+{
+    "name": "joaojoyce/phlatdb",
+    "description": "A flat file db for PHP",
+    "license": "MIT",
+    "keywords": ["phlat","flat file db","flat","db","database"],
+    "authors": [
+        {
+            "name": "João Joyce",
+            "email": "joao.joyce@netcabo.pt"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "JoaoJoyce\\Phlatdb\\": "src"
+        }
+    }
+}
