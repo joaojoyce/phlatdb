@@ -44,10 +44,9 @@ class Phlatdb {
         } elseif(count($this->data) == 0) {
             throw new \Exception('Data not found');
         } else {
-            $file_name = $this->path . '/' . $this->table . '.db';
-            $file = fopen($file_name, "w");
-            $encoded_data = $this->line_encoder->encodeToDB($this->data);
-            fwrite($file, $encoded_data);
+            $merged_data = $this->mergeData();
+            $new_data = $this->line_encoder->encodeToDB($merged_data);
+            $this->writeToFile($new_data);
         }
     }
 
@@ -62,6 +61,21 @@ class Phlatdb {
 
     private function isValidLine($arr) {
         return true;
+    }
+
+    private function mergeData() {
+        $file_name = $this->path . '/' . $this->table . '.db';
+        $file_data = file_get_contents($file_name);
+        $data = json_decode($file_data);
+        $new_data = array_merge($data,$this->data);
+        return $new_data;
+    }
+
+    private function writeToFile($encoded_data) {
+        $file_name = $this->path . '/' . $this->table . '.db';
+        $file = fopen($file_name, "w");
+        fwrite($file, $encoded_data);
+        fclose($file);
     }
 
 }
