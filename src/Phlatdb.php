@@ -4,7 +4,7 @@ use JoaoJoyce\Phlatdb\LineEncoder\LineEncoderInterface;
 
 class Phlatdb {
 
-    private $path = "../tests/db";
+    private $path;
 
     private $data = array();
 
@@ -12,6 +12,7 @@ class Phlatdb {
 
     public function __construct(LineEncoderInterface $line_encoder) {
         $this->line_encoder = $line_encoder;
+        $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
     }
 
     public function table($table) {
@@ -45,7 +46,8 @@ class Phlatdb {
         } else {
             $file_name = $this->path . '/' . $this->table . '.db';
             $file = fopen($file_name, "w");
-            fwrite($file, $this->data);
+            $encoded_data = $this->line_encoder->encodeToDB($this->data);
+            fwrite($file, $encoded_data);
         }
     }
 

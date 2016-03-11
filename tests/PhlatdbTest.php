@@ -30,6 +30,24 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('key1' => "Teste","key2" => "Teste")),$result);
     }
 
+    public function testSave()
+    {
+        $data = [
+            [
+                'test1' => 'Linha1 test1',
+                'test2' => 'Linha1 test2'
+            ],
+            [
+                'test1' => 'Linha2 test1',
+                'test2' => 'Linha2 test2'
+            ]
+        ];
+
+        $phlatdb = new Phlatdb(new JsonLineEncoder());
+        $phlatdb->table("testdb")->insert($data)->save();
+
+
+    }
 
 }
  
