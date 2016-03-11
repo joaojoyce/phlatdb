@@ -14,7 +14,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
 
         $result =$phlatdb->getRawData();
 
-        $this->assertEquals($data,$result);
+        $this->assertEquals(array(array(1=>array('key1' => "Teste","key2" => "Teste"))),$result);
 
     }
 
@@ -27,7 +27,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $result =$phlatdb->getRawData();
 
         $this->assertNotEquals($data,$result);
-        $this->assertEquals(array(array('key1' => "Teste","key2" => "Teste")),$result);
+        $this->assertEquals(array(array(1=>array('key1' => "Teste","key2" => "Teste"))),$result);
     }
 
     public function testSave()

@@ -10,6 +10,8 @@ class Phlatdb {
 
     private $table;
 
+    private $last_index = 0;
+
     public function __construct(LineEncoderInterface $line_encoder) {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
@@ -17,6 +19,7 @@ class Phlatdb {
 
     public function table($table) {
         $this->table = $table;
+        $this->getLastIndexForTable($table);
         return $this;
     }
 
@@ -30,7 +33,9 @@ class Phlatdb {
 
         foreach($data as $line) {
             if($this->isAssociativeArray($line) && $this->isValidLine($line)) {
-                array_push($lines_to_insert,$line);
+                $this->last_index = $this->last_index + 1;
+                $new_array = array($this->last_index => $line);
+                array_push($lines_to_insert,$new_array);
             }
         }
 
@@ -47,6 +52,7 @@ class Phlatdb {
             $merged_data = $this->mergeData();
             $new_data = $this->line_encoder->encodeToDB($merged_data);
             $this->writeToFile($new_data);
+            $this->writeMetaDataToFile();
         }
     }
 
@@ -65,9 +71,13 @@ class Phlatdb {
 
     private function mergeData() {
         $file_name = $this->path . '/' . $this->table . '.db';
-        $file_data = file_get_contents($file_name);
-        $data = json_decode($file_data);
-        $new_data = array_merge($data,$this->data);
+        try {
+            $file_data = file_get_contents($file_name);
+            $data = json_decode($file_data);
+            $new_data = array_merge($data, $this->data);
+        } catch(\Exception $e) {
+            $new_data = $this->data;
+        }
         return $new_data;
     }
 
@@ -76,6 +86,26 @@ class Phlatdb {
         $file = fopen($file_name, "w");
         fwrite($file, $encoded_data);
         fclose($file);
+    }
+
+    private function writeMetaDataToFile() {
+        $file_name = $this->path . '/' . $this->table . '.meta.db';
+        $file = fopen($file_name, "w");
+        fwrite($file, json_encode(array('last_index'=> $this->last_index)));
+        fclose($file);
+    }
+
+
+    private function getLastIndexForTable() {
+        try {
+            $file_data = file_get_contents($this->path . '/' . $this->table . '.meta.db');
+            $data = json_decode($file_data);
+            if($data && array_key_exists('last_index',$data)) {
+                $this->last_index = $data->last_index;
+            }
+        } catch(\Exception $e) {
+        }
+        return $this->last_index;
     }
 
 }
