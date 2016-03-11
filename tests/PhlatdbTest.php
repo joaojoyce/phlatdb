@@ -12,7 +12,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $phlatdb = new Phlatdb(new JsonLineEncoder());
         $phlatdb->insert($data);
 
-        $result =$phlatdb->getData();
+        $result =$phlatdb->getRawData();
 
         $this->assertEquals($data,$result);
 
@@ -24,7 +24,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $phlatdb = new Phlatdb(new JsonLineEncoder());
         $phlatdb->insert($data);
 
-        $result =$phlatdb->getData();
+        $result =$phlatdb->getRawData();
 
         $this->assertNotEquals($data,$result);
         $this->assertEquals(array(array('key1' => "Teste","key2" => "Teste")),$result);

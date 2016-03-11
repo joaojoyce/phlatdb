@@ -50,7 +50,7 @@ class Phlatdb {
         }
     }
 
-    public function getData()
+    public function getRawData()
     {
         return $this->data;
     }
