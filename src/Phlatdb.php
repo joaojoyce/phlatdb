@@ -10,6 +10,10 @@ class Phlatdb {
 
     private $table;
 
+    private $data_file_name;
+
+    private $meta_file_name;
+
     public function __construct(LineEncoderInterface $line_encoder) {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
@@ -17,6 +21,8 @@ class Phlatdb {
 
     public function table($table) {
         $this->table = $table;
+        $this->data_file_name = $this->path . '/' . $this->table . '.db';
+        $this->meta_file_name = $this->path . '/' . $this->table . '.meta.db';
         return $this;
     }
 
@@ -67,20 +73,13 @@ class Phlatdb {
     }
 
     private function mergeData($data) {
-        $file_name = $this->path . '/' . $this->table . '.db';
-        try {
-            $file_data = file_get_contents($file_name);
-            $data_from_file = json_decode($file_data);
-            $new_data = array_merge($data_from_file, $data);
-        } catch(\Exception $e) {
-            $new_data = $data;
-        }
+        $data_from_file = $this->getDataFromFile();
+        $new_data = array_merge($data_from_file, $data);
         return $new_data;
     }
 
     private function writeToFile($encoded_data) {
-        $file_name = $this->path . '/' . $this->table . '.db';
-        $file = fopen($file_name, "w");
+        $file = fopen($this->data_file_name, "w");
         fwrite($file, $encoded_data);
         fclose($file);
     }
@@ -89,9 +88,8 @@ class Phlatdb {
 
         $last_index = $this->getLastIndexForTable();
         $last_index = max(array_merge($inserted_indexes,array($last_index)));
-        $file_name = $this->path . '/' . $this->table . '.meta.db';
-        $file = fopen($file_name, "w");
-        fwrite($file, json_encode(array('last_index'=> $last_index)));
+        $file = fopen($this->meta_file_name, "w");
+        fwrite($file, $this->line_encoder->encodeToDB(array('last_index'=> $last_index)));
         fclose($file);
     }
 
@@ -100,7 +98,7 @@ class Phlatdb {
         $last_index=0;
         try {
             $file_data = file_get_contents($this->path . '/' . $this->table . '.meta.db');
-            $data = json_decode($file_data);
+            $data = $this->line_encoder->decodeFromDB($file_data);
             if($data && array_key_exists('last_index',$data)) {
                 $last_index = $data->last_index;
             }
@@ -120,6 +118,27 @@ class Phlatdb {
             array_push($lines_to_insert,$new_array);
         }
         return array('data'=>$lines_to_insert,'keys'=> $indexes);
+    }
+
+    private function getDataFromFile() {
+        $data_from_file = array();
+        try {
+            $file_data = file_get_contents($this->data_file_name);
+            $data_from_file = $this->line_encoder->decodeFromDB($file_data);
+        } catch(\Exception $e) {
+        }
+        return $data_from_file;
+    }
+
+    public function delete($id) {
+        $lines_to_insert = array();
+        $data = $this->getDataFromFile();
+        foreach($data as $key => $line) {
+            if(key($line) != $id) {
+                array_push($lines_to_insert,$line);
+            }
+        }
+        $this->writeToFile($this->line_encoder->encodeToDB($lines_to_insert));
     }
 
 }

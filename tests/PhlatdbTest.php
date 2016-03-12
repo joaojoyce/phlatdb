@@ -48,5 +48,24 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
 
 
     }
+
+    public function testInsertAndDeleteOneLine() {
+        $data = [
+            [
+                'test1' => 'Linha1 test1',
+                'test2' => 'Linha1 test2'
+            ],
+            [
+                'test1' => 'Linha2 test1',
+                'test2' => 'Linha2 test2'
+            ]
+        ];
+
+        $phlatdb = new Phlatdb(new JsonLineEncoder());
+        $inserted_ids = $phlatdb->table("testdb")->insert($data)->save();
+        $phlatdb->delete($inserted_ids[1]);
+        $phlatdb->delete($inserted_ids[0]);
+
+    }
 }
  
