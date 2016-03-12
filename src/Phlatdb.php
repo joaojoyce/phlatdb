@@ -135,4 +135,9 @@ class Phlatdb {
         $this->writeToFile($this->line_encoder->encodeToDB($data));
     }
 
+    public function find($id) {
+        $data = $this->getDataFromFile();
+        return $data[$id];
+    }
+
 }
