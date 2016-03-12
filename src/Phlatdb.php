@@ -50,7 +50,7 @@ class Phlatdb {
         } elseif(count($this->data) == 0) {
             throw new \Exception('Data not found');
         } else {
-            $data = $this->prepareDataAndassignIndexes($this->data);
+            $data = $this->prepareDataAndAssignIndexes($this->data);
             $merged_data = $this->mergeData($data['data']);
             $encoded_merged_data = $this->line_encoder->encodeToDB($merged_data);
             $this->writeToFile($encoded_merged_data);
@@ -74,7 +74,7 @@ class Phlatdb {
 
     private function mergeData($data) {
         $data_from_file = $this->getDataFromFile();
-        $new_data = array_merge($data_from_file, $data);
+        $new_data = $data_from_file + $data;
         return $new_data;
     }
 
@@ -100,22 +100,21 @@ class Phlatdb {
             $file_data = file_get_contents($this->path . '/' . $this->table . '.meta.db');
             $data = $this->line_encoder->decodeFromDB($file_data);
             if($data && array_key_exists('last_index',$data)) {
-                $last_index = $data->last_index;
+                $last_index = $data['last_index'];
             }
         } catch(\Exception $e) {
         }
         return $last_index;
     }
 
-    private function prepareDataAndassignIndexes($new_data) {
+    private function prepareDataAndAssignIndexes($new_data) {
         $indexes = array();
         $lines_to_insert = array();
         $last_index = $this->getLastIndexForTable();
         foreach($new_data as $line) {
             $last_index = $last_index + 1;
-            $new_array = array($last_index => $line);
             array_push($indexes,$last_index);
-            array_push($lines_to_insert,$new_array);
+            $lines_to_insert[$last_index] =  $line;
         }
         return array('data'=>$lines_to_insert,'keys'=> $indexes);
     }
@@ -131,14 +130,9 @@ class Phlatdb {
     }
 
     public function delete($id) {
-        $lines_to_insert = array();
         $data = $this->getDataFromFile();
-        foreach($data as $key => $line) {
-            if(key($line) != $id) {
-                array_push($lines_to_insert,$line);
-            }
-        }
-        $this->writeToFile($this->line_encoder->encodeToDB($lines_to_insert));
+        unset($data[$id]);
+        $this->writeToFile($this->line_encoder->encodeToDB($data));
     }
 
 }

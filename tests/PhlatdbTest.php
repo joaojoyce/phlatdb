@@ -63,7 +63,6 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
 
         $phlatdb = new Phlatdb(new JsonLineEncoder());
         $inserted_ids = $phlatdb->table("testdb")->insert($data)->save();
-        $phlatdb->delete($inserted_ids[1]);
         $phlatdb->delete($inserted_ids[0]);
 
     }

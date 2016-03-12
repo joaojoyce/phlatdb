@@ -8,7 +8,7 @@ class JsonLineEncoder implements LineEncoderInterface
     }
 
     public function decodeFromDB($string) {
-        return json_decode($string);
+        return json_decode($string,true);
     }
 
 
