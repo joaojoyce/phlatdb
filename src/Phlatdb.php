@@ -140,4 +140,14 @@ class Phlatdb {
         return $data[$id];
     }
 
+    public function update($id,$data_to_update) {
+        $data = $this->getDataFromFile();
+        foreach($data_to_update as $key => $line) {
+            $data[$id][$key] = $line;
+        }
+        $this->writeToFile($this->line_encoder->encodeToDB($data));
+        return $data[$id];
+
+    }
+
 }
