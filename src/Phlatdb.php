@@ -14,6 +14,8 @@ class Phlatdb {
 
     private $meta_file_name;
 
+    private $select_fields=null;
+
     public function __construct(LineEncoderInterface $line_encoder) {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
@@ -137,7 +139,15 @@ class Phlatdb {
 
     public function find($id) {
         $data = $this->getDataFromFile();
-        return $data[$id];
+        if(!$this->select_fields) {
+            return $data[$id];
+        } else {
+            $res = array();
+            foreach($this->select_fields as $field) {
+                $res[$field] = $data[$id][$field];
+            }
+            return $res;
+        }
     }
 
     public function update($id,$data_to_update) {
@@ -148,6 +158,12 @@ class Phlatdb {
         $this->writeToFile($this->line_encoder->encodeToDB($data));
         return $data[$id];
 
+    }
+
+    public function select() {
+        $fields = func_get_args();
+        $this->select_fields=$fields;
+        return $this;
     }
 
 }
