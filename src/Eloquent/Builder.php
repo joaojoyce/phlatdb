@@ -14,7 +14,7 @@ class Builder extends \Illuminate\Database\Eloquent\Builder {
     }
 
     public function find($id, $columns = ['*']) {
-        $this->phlatdb->find($id);
+        return $this->phlatdb->find($id);
     }
 
     public function setModel(\Illuminate\Database\Eloquent\Model  $model)

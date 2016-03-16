@@ -139,8 +139,10 @@ class Phlatdb {
 
     public function find($id) {
         $data = $this->getDataFromFile();
+
+
         if(!$this->select_fields) {
-            return $data[$id];
+            return json_decode(json_encode($data[$id]), FALSE);
         } else {
             $res = array();
             foreach($this->select_fields as $field) {
