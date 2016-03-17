@@ -20,6 +20,10 @@ class Phlatdb {
 
     private $index_column;
 
+    private $order_by = array();
+
+    private $current_order;
+
     public function __construct(LineEncoderInterface $line_encoder,$index_column='id') {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
@@ -194,6 +198,7 @@ class Phlatdb {
     public function get() {
 
         $results = $this->getLinesFromQuery();
+        $results = $this->orderResults($results);
         return $results;
 
     }
@@ -248,6 +253,49 @@ class Phlatdb {
         if($insert) {
             array_push($results,$line);
         }
+        return $results;
+    }
+
+    public function count() {
+        $results = $this->getLinesFromQuery();
+        return count($results);
+
+    }
+
+    public function orderBy($order,$direction) {
+        array_push($this->order_by,array('order' => $order,'direction' => $direction));
+        return $this;
+    }
+
+    private function orderResults($results) {
+
+
+
+        $asc = function($a, $b) {
+            if ($a[$this->current_order] == $b[$this->current_order]) {
+                return 0;
+            }
+            return ($a[$this->current_order] < $b[$this->current_order]) ? -1 : 1;
+        };
+
+        $desc = function($a, $b) {
+            if ($a[$this->current_order] == $b[$this->current_order]) {
+                return 0;
+            }
+            return ($a[$this->current_order] < $b[$this->current_order]) ? 1 : -1;
+        };
+
+        if(!empty($this->order_by)) {
+            foreach($this->order_by as $order) {
+                $this->current_order = $order['order'];
+                if($order['direction'] == 'desc') {
+                    uasort($results, $desc);
+                } else {
+                    uasort($results, $asc);
+                }
+            }
+        }
+
         return $results;
     }
 
