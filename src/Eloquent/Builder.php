@@ -44,6 +44,10 @@ class Builder extends \Illuminate\Database\Eloquent\Builder {
         return $this;
     }
 
+    public function where($column, $operator = null, $value = null, $boolean = 'and') {
+        return $this->phlatdb->where($column, $operator, $value, $boolean);
+
+    }
 
 }
  

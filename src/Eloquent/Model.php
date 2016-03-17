@@ -9,13 +9,13 @@ abstract class Model extends \Illuminate\Database\Eloquent\Model {
 
     public function newEloquentBuilder($query)
     {
-        $phlatdb = new Phlatdb(new JsonLineEncoder());
+        $phlatdb = new Phlatdb(new JsonLineEncoder(),$this->primaryKey);
         return new Builder($query,$phlatdb);
     }
 
     protected function newBaseQueryBuilder()
     {
-        $phlatdb = new Phlatdb(new JsonLineEncoder());
+        $phlatdb = new Phlatdb(new JsonLineEncoder(),$this->primaryKey);
         $phlatdb->table($this->table);
         self::$query_builder = new QueryBuilder($phlatdb);
         return self::$query_builder;

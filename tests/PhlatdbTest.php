@@ -82,7 +82,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $phlatdb = new Phlatdb(new JsonLineEncoder());
         $inserted_ids = $phlatdb->table("testdb")->insert($data)->save();
         $res = $phlatdb->find($inserted_ids[1]);
-        $this->assertEquals(['test1' => 'Linha2 test1','test2' => 'Linha2 test2'],$res);
+        $this->assertEquals((object)['id' => $inserted_ids[1],'test1' => 'Linha2 test1','test2' => 'Linha2 test2'],$res);
 
     }
 
@@ -101,7 +101,7 @@ class PhlatdbTest extends PHPUnit_Framework_TestCase {
         $phlatdb = new Phlatdb(new JsonLineEncoder());
         $inserted_ids = $phlatdb->table("testdb")->insert($data)->save();
         $res = $phlatdb->update($inserted_ids[1],['test1' => 'Linha3 test1']);
-        $this->assertEquals(['test1' => 'Linha3 test1','test2' => 'Linha2 test2'],$res);
+        $this->assertEquals(['id' => $inserted_ids[1],'test1' => 'Linha3 test1','test2' => 'Linha2 test2'],$res);
 
     }
 

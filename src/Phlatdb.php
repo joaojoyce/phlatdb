@@ -16,9 +16,14 @@ class Phlatdb {
 
     private $select_fields=null;
 
-    public function __construct(LineEncoderInterface $line_encoder) {
+    private $where = array();
+
+    private $index_column;
+
+    public function __construct(LineEncoderInterface $line_encoder,$index_column='id') {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
+        $this->index_column = $index_column;
     }
 
     public function table($table) {
@@ -116,6 +121,7 @@ class Phlatdb {
         foreach($new_data as $line) {
             $last_index = $last_index + 1;
             array_push($indexes,$last_index);
+            $line[$this->index_column] = $last_index;
             $lines_to_insert[$last_index] =  $line;
         }
         return array('data'=>$lines_to_insert,'keys'=> $indexes);
@@ -172,6 +178,77 @@ class Phlatdb {
         $data = $this->getDataFromFile();
         return $data;
 
+    }
+
+    public function where($column, $operator = null, $value = null, $boolean = 'and') {
+        array_push($this->where,array(
+            'column' => $column,
+            'operator' => $operator,
+            'value' => $value,
+            'boolean' => $boolean
+        ));
+        return $this;
+    }
+
+
+    public function get() {
+
+        $results = $this->getLinesFromQuery();
+        return $results;
+
+    }
+
+    private function getLinesFromQuery() {
+
+        $results = array();
+        $data = $this->getDataFromFile();
+
+        foreach($data as $line) {
+            $results = $this->parseOperations($line,$results);
+        }
+        return $results;
+
+    }
+
+    private function parseOperations($line,$results) {
+
+        $op_results = array();
+
+        foreach($this->where as $key => $operation) {
+            $op_results[$key] = false;
+            if($operation['boolean'] == 'and') {
+                if(array_key_exists($operation['column'],$line)) {
+                    if($operation['operator'] == '=' && $line[$operation['column']] == $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                    if($operation['operator'] == '>' && $line[$operation['column']] > $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                    if($operation['operator'] == '<' && $line[$operation['column']] < $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                    if($operation['operator'] == '>=' && $line[$operation['column']] >= $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                    if($operation['operator'] == '<=' && $line[$operation['column']] <= $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                    if(($operation['operator'] == '!=' || $operation['operator'] == '<>') && $line[$operation['column']] != $operation['value']) {
+                        $op_results[$key] = true;
+                    }
+                }
+            }
+        }
+
+        $insert = true;
+        foreach($op_results as $res) {
+            $insert = $insert && $res;
+        }
+
+        if($insert) {
+            array_push($results,$line);
+        }
+        return $results;
     }
 
 }
