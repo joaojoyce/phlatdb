@@ -168,4 +168,10 @@ class Phlatdb {
         return $this;
     }
 
+    public function all() {
+        $data = $this->getDataFromFile();
+        return $data;
+
+    }
+
 }

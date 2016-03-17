@@ -1,6 +1,5 @@
 <?php  namespace JoaoJoyce\Phlatdb\Eloquent; 
 
-use \Illuminate\Database\Query\Builder as QueryBuilder;
 use JoaoJoyce\Phlatdb\Phlatdb;
 
 class Builder extends \Illuminate\Database\Eloquent\Builder {
@@ -34,14 +33,13 @@ class Builder extends \Illuminate\Database\Eloquent\Builder {
         return $results;
     }
 
-
     public function setModel(\Illuminate\Database\Eloquent\Model  $model)
     {
         $this->model = $model;
         $this->id = $this->model->getQualifiedKeyName();
 
         $this->phlatdb->table($model->getTable());
-        $this->query->from($model->getTable());
+        //$this->query->from($model->getTable());
 
         return $this;
     }
