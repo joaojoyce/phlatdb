@@ -34,5 +34,13 @@ class QueryBuilder extends Builder {
         return $this->phlatdb->orderBy($column,$direction);
     }
 
+    public function insertGetId(array $values, $sequence = null)
+    {
+        $keys = $this->phlatdb->insert($values)->save();
+        if(count($keys)==1) {
+            return $keys[0];
+        }
+    }
+
 }
  

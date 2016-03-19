@@ -47,7 +47,6 @@ class Builder extends \Illuminate\Database\Eloquent\Builder {
     public function where($column, $operator = null, $value = null, $boolean = 'and') {
         $this->phlatdb->where($column, $operator, $value, $boolean);
         return $this;
-
     }
 
 
@@ -58,6 +57,11 @@ class Builder extends \Illuminate\Database\Eloquent\Builder {
 
     public function orderBy($column, $direction = 'asc') {
         return $this->phlatdb->orderBy($column,$direction);
+    }
+
+    public function first($columns = ['*'])
+    {
+        return $this->phlatdb->take(1)->get($columns)->first();
     }
 
 
