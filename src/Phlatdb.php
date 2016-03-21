@@ -24,6 +24,10 @@ class Phlatdb {
 
     private $current_order;
 
+    private $number_of_results = 0;
+
+    private $offset = 0;
+
     public function __construct(LineEncoderInterface $line_encoder,$index_column='id') {
         $this->line_encoder = $line_encoder;
         $this->path = realpath(dirname(__FILE__)) . "/../tests/db";
@@ -185,7 +189,6 @@ class Phlatdb {
     }
 
     public function where($column, $operator = null, $value = null, $boolean = 'and') {
-
         if($value == null) {
             $value = $operator;
             $operator = '=';
@@ -205,7 +208,7 @@ class Phlatdb {
 
         $results = $this->getLinesFromQuery();
         $results = $this->orderResults($results);
-        return $results;
+        return collect(array_slice($results,$this->offset,$this->number_of_results));
 
     }
 
@@ -304,5 +307,16 @@ class Phlatdb {
 
         return $results;
     }
+
+    public function take($number_of_results) {
+        $this->number_of_results = $number_of_results;
+        return $this;
+    }
+
+    public function skip($offset) {
+        $this->offset = $offset;
+        return $this;
+    }
+
 
 }
