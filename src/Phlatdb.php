@@ -185,6 +185,12 @@ class Phlatdb {
     }
 
     public function where($column, $operator = null, $value = null, $boolean = 'and') {
+
+        if($value == null) {
+            $value = $operator;
+            $operator = '=';
+        }
+
         array_push($this->where,array(
             'column' => $column,
             'operator' => $operator,
